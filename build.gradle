@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'maven'
+    id 'maven-publish'
+    id "com.github.johnrengelman.shadow" version "2.0.4"
+}
+
+group 'ccp'
+version 'v2.6.3r'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'de.mindpipe.android', name: 'android-logging-log4j', version: '1.0.3'
+    compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile files('libs/httpclient.jar')
+}
+
+jar {
+    manifest {
+        attributes 'Class-Path': 'libs/httpclient.jar'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: mavenLocal().url)
+
+            pom.project {
+                name = project.name
+                packaging = 'jar'
+                description = 'description'
+            }
+        }
+
+    }
+}
+
+artifacts {
+    archives sourceJar
+}
